@@ -9,7 +9,7 @@ module.exports.main = () => {
     let bs = fumen.fromPage(pages[0]);
     let bf = new blockfish.AI;
     bf.analyze(bs, { node_limit: 200000 }, ana => {
-        console.log(fumen.encode(fumen.analysis(bf, ana, bs)));
+        console.log(fumen.encode(fumen.analysisToPages(bf, ana, bs)));
         bf.kill();
     });
 };

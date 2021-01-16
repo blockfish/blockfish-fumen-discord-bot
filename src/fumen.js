@@ -3,7 +3,7 @@ const Stacker = require('./stacker.js');
 
 const flags = { lock: false, quiz: true };
 
-function page(stacker) {
+function toPage(stacker) {
     let type = stacker.piece ? stacker.piece.type : "";
     let comment = "#Q=[" + stacker.hold + "](" + type + ")" + stacker.queue;
     let matrix = "";
@@ -14,20 +14,20 @@ function page(stacker) {
     return { comment, field, flags };
 }
 
-function analysis(bf, analysis, stacker) {
+function analysisToPages(bf, analysis, stacker) {
     let sugg = analysis.suggestions[0];
     let pages = [];
     stacker = stacker.copy();
     for (let op of sugg.inputs) {
         if (op === 'hd') {
-            pages.push(page(stacker));
+            pages.push(toPage(stacker));
         }
         stacker.apply(op);
     }
     let comment = bf.version
         + " | rating: " + sugg.rating
         + " (" + analysis.statistics.timeTaken + "s)";
-    pages.push({ ...page(stacker), comment });
+    pages.push({ ...toPage(stacker), comment });
     return pages;
 }
 
@@ -64,4 +64,10 @@ function parseQuiz(comment) {
 const encode = kjfumen.encoder.encode;
 const decode = kjfumen.decoder.decode;
 
-module.exports = { page, analysis, fromPage, encode, decode };
+module.exports = {
+    toPage,
+    analysisToPages,
+    fromPage,
+    encode,
+    decode,
+};
