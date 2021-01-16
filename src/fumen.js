@@ -1,6 +1,7 @@
 const kjfumen = require('tetris-fumen');
+const Stacker = require('./stacker.js');
 
-const flags = { lock: false };
+const flags = { lock: false, quiz: true };
 
 function page(stacker) {
     let type = stacker.piece ? stacker.piece.type : "";
@@ -30,7 +31,37 @@ function analysis(bf, analysis, stacker) {
     return pages;
 }
 
+function fromPage(page) {
+    let stacker = new Stacker;
+    stacker.matrix = page.field.str({
+        reduced: true,
+        separator: '\n',
+    }).split('\n');
+    let quiz = page.comment && parseQuiz(page.comment);
+    if (quiz !== null) {
+        stacker.hold = quiz.hold;
+        stacker.queue = quiz.current + quiz.queue;
+    }
+    return stacker;
+}
+
+function parseQuiz(comment) {
+    if (!comment.startsWith("#Q=[")) {
+        return null;
+    }
+    let pos = 4;
+    let i = comment.indexOf("](", pos);
+    if (i === -1) return null;
+    let hold = comment.substring(pos, i);
+    pos = i + 2;
+    i = comment.indexOf(")", pos);
+    if (i === -1) return null;
+    let current = comment.substring(pos, i);
+    let queue = comment.substring(i + 1);
+    return { hold, current, queue };
+}
+
 const encode = kjfumen.encoder.encode;
 const decode = kjfumen.decoder.decode;
 
-module.exports = { page, analysis, encode, decode };
+module.exports = { page, analysis, fromPage, encode, decode };
