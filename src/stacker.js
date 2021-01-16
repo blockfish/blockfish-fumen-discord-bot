@@ -13,6 +13,7 @@ class Stacker {
     spawn() {
         let { queue } = this;
         if (queue === "") {
+            this.piece = null;
             return null;
         }
         let type = queue[0];
@@ -24,8 +25,17 @@ class Stacker {
     }
 
     apply(op) {
-        if (this.piece === null && !this.spawn()) {
-            return null;
+        if (this.piece === null) {
+            this.spawn();
+        }
+
+        if (op === 'hold') {
+            let hold = this.hold;
+            this.hold = this.piece ? this.piece.type : '';
+            if (hold !== '') {
+                this.queue = hold + this.queue;
+            }
+            return this.spawn();
         }
 
         switch (op) {
@@ -65,19 +75,8 @@ class Stacker {
                 }
                 return dy;
             }
-            break;
 
-        case 'hold':
-            {
-                let hold = this.hold;
-                this.hold = this.piece.type;
-                if (hold !== null) {
-                    this.queue = hold + this.queue;
-                }
-                this.spawn();
-                return true;
-            }
-            break;
+        default: return null;
         }
     }
 
