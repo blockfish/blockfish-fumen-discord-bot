@@ -17,7 +17,6 @@ function toPage(stacker) {
 function analysisToPages(bf, analysis, stacker) {
     let sugg = analysis.suggestions[0];
     let pages = [];
-    stacker = stacker.copy();
     for (let op of sugg.inputs) {
         if (op === 'hd') {
             pages.push(toPage(stacker));
@@ -33,10 +32,12 @@ function analysisToPages(bf, analysis, stacker) {
 
 function fromPage(page) {
     let stacker = new Stacker;
-    stacker.matrix = page.field.str({
+    let lines = page.field.str({
         reduced: true,
         separator: '\n',
     }).split('\n');
+    lines.pop();
+    stacker.matrix = lines.reverse();
     let quiz = page.comment && parseQuiz(page.comment);
     if (quiz !== null) {
         stacker.hold = quiz.hold;
