@@ -1,13 +1,19 @@
 const ruleset = require('./ruleset.json');
 
 class Stacker {
-    constructor({ queue, hold, matrix }) {
+    constructor() {
         Object.assign(this, {
-            matrix: matrix || [],
-            hold: hold || "",
-            queue: queue || "",
+            matrix: [],
+            hold: "",
+            queue: "",
             piece: null,
         });
+    }
+
+    copy() {
+        let { matrix, hold, queue } = this;
+        let piece = this.piece ? Object.assign({}, this.piece) : null;
+        return Object.assign(new Stacker, { matrix, hold, queue, piece });
     }
 
     spawn() {
