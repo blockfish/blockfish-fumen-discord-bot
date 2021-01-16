@@ -1,3 +1,8 @@
-const { botToken } = require('./tokens.json');
 const Bot = require('./src/bot.js');
-new Bot(botToken);
+const { env }  = require('process');
+
+if (env.BOT_TOKEN === undefined) {
+    console.error('BOT_TOKEN unset');
+} else {
+    new Bot(env.BOT_TOKEN);
+}
