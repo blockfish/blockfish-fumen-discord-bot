@@ -2,13 +2,14 @@
   "name": "fumen-bot-blockfish",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "blockfish": "file:../blockfish/blockfish-js"
+    "blockfish": "file:../blockfish/blockfish-js",
+    "tetris-fumen": "^1.1.1"
   }
 }

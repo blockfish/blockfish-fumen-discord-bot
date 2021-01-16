@@ -1,6 +1,7 @@
 const blockfish = require('blockfish');
 const ruleset = require('./ruleset.json');
 const Stacker = require('./stacker.js');
+const fumen = require('./fumen.js');
 
 class Cheese {
     constructor() {
@@ -43,28 +44,15 @@ class RandomBag {
 }
 
 module.exports.main = () => {
-    let bs = new Stacker({});
+    let bs = new Stacker;
     let cheese = new Cheese;
     for (var i = 0; i < 9; i++) {
         bs.matrix.unshift(cheese.line());
     }
     bs.queue = (new RandomBag).shuffle();
-    console.log('START:');
-    console.log(bs);
-    console.log('RUNNING BLOCKFISH...');
     let bf = new blockfish.AI;
-    bf.analyze(bs, ({ suggestions }) => {
-        let best = suggestions[0];
-        console.log('RATING: ' + best.rating);
-        for (let op of best.inputs) {
-            console.log(op.toUpperCase());
-            if (op === 'hd') {
-                console.log(bs);
-            }
-            bs.apply(op);
-        }
-        console.log(bs);
-        console.log('DONE');
+    bf.analyze(bs, { node_limit: 200000 }, ana => {
+        console.log(fumen.encode(fumen.analysis(bf, ana, bs)));
         bf.kill();
     });
 };
