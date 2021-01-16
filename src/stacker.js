@@ -8,31 +8,23 @@ class Stacker {
             queue: queue || "",
             piece: null,
         });
-        this.spawn(null);
     }
 
-    spawn(type) {
-        type ||= this.nextType();
-        if (!type) {
-            this.piece = null;
-            return;
-        }
-        let [x, y] = ruleset.shapes[type].spawn;
-        let rotation = 'spawn';
-        this.piece = { type, x, y, rotation };
-    }
-
-    nextType() {
+    spawn() {
         let { queue } = this;
         if (queue === "") {
             return null;
         }
+        let type = queue[0];
+        let [x, y] = ruleset.shapes[type].spawn;
+        let rotation = 'spawn';
+        this.piece = { type, x, y, rotation };
         this.queue = queue.substring(1);
-        return queue[0];
+        return type;
     }
 
     apply(op) {
-        if (this.piece === null) {
+        if (this.piece === null && !this.spawn()) {
             return null;
         }
 
@@ -77,6 +69,15 @@ class Stacker {
             break;
 
         case 'hold':
+            {
+                let hold = this.hold;
+                this.hold = this.piece.type;
+                if (hold !== null) {
+                    this.queue = hold + this.queue;
+                }
+                this.spawn();
+                return true;
+            }
             break;
         }
     }
