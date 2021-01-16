@@ -45,9 +45,8 @@ class Stacker {
                 // rotation
                 let { type, rotation } = this.piece;
                 let spin = op;
-                let r0 = ROTATE_INDEX[rotation];
-                let r1 = ROTATE_INDEX[ROTATE[rotation][spin]];
-                let kicks = ruleset.shapes[type].kicks[spin][r0][r1];
+                let index = ROTATE_INDEX[ROTATE[rotation][spin]];
+                let kicks = ruleset.shapes[type].kicks[spin][index];
                 return this._transform(kicks.map(([dx, dy]) => ({ dx, dy, spin })));
             }
 
