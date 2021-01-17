@@ -4,9 +4,9 @@ const fumen = require('./fumen.js');
 
 const FISH = "\u{1f41f}";
 const FUMEN_SITE = "http://fumen.zui.jp/";
-
+const MAX_URL_LENGTH = 400;
 const AI_CONFIG = {
-    nodeLimit: 100000,
+    nodeLimit: 300000,
     suggestionLimit: 1,
 };
 
@@ -74,7 +74,7 @@ function parseCommand(msg) {
 }
 
 function shortenIfTooLong(url, callback) {
-    if (url.length >= 1500) {
+    if (url.length >= MAX_URL_LENGTH) {
         require('turl').shorten(url).then(callback);
     } else {
         return callback(url);
