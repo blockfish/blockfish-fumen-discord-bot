@@ -45,9 +45,11 @@ class Bot {
             let pages = fumen.decode(data);
             let stacker = fumen.fromPage(pages[0]);
             this.ai.analyze(stacker, AI_CONFIG, analysis => {
-                let solution = fumen.analysisToPages(this.ai, analysis, stacker);
-                let url = `${FUMEN_SITE}?${fumen.encode(solution)}`;
-                shortenIfTooLong(url, callback);
+                if (analysis.suggestions.length > 0) {
+                    let solution = fumen.analysisToPages(this.ai, analysis, stacker);
+                    let url = `${FUMEN_SITE}?${fumen.encode(solution)}`;
+                    shortenIfTooLong(url, callback);
+                }
             });
         } catch (e) {
             console.error(e);
