@@ -2,6 +2,7 @@ const kjfumen = require('tetris-fumen');
 const Stacker = require('./stacker.js');
 
 const flags = { lock: false, quiz: true };
+const validMinos = "LOJISZT";
 
 function toPage(stacker) {
     let type = stacker.piece ? stacker.piece.type : "";
@@ -53,13 +54,23 @@ function parseQuiz(comment) {
     let pos = 4;
     let i = comment.indexOf("](", pos);
     if (i === -1) return null;
-    let hold = comment.substring(pos, i);
+    let hold = filterValidMinos(comment.substring(pos, i));
     pos = i + 2;
     i = comment.indexOf(")", pos);
     if (i === -1) return null;
-    let current = comment.substring(pos, i);
-    let queue = comment.substring(i + 1);
+    let current = filterValidMinos(comment.substring(pos, i));
+    let queue = filterValidMinos(comment.substring(i + 1));
     return { hold, current, queue };
+}
+
+function filterValidMinos(str) {
+    let output = "";
+    for (let c of str) {
+        if (validMinos.includes(c)) {
+            output += c;
+        }
+    }
+    return output;
 }
 
 const encode = kjfumen.encoder.encode;
