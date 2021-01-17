@@ -5,7 +5,8 @@ const fumen = require('./fumen.js');
 const FISH = "\u{1f41f}";
 
 const AI_CONFIG = {
-    node_limit: 100000,
+    nodeLimit: 100000,
+    suggestionLimit: 1,
 };
 
 class Bot {
