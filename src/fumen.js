@@ -1,33 +1,31 @@
 const kjfumen = require('tetris-fumen');
 const Stacker = require('./stacker.js');
 
-const flags = { lock: false, quiz: true };
-const validMinos = "LOJISZT";
-
 function toPage(stacker) {
-    let type = stacker.piece ? stacker.piece.type : "";
-    let comment = "#Q=[" + stacker.hold + "](" + type + ")" + stacker.queue;
-    let matrix = "";
-    for (let row of stacker.matrix) {
-        matrix = row + matrix;
-    }
-    let field = kjfumen.Field.create(matrix);
-    return { comment, field, flags };
+    return {
+        comment: quizString(stacker),
+        field: kjfumen.Field.create(stacker.matrix.slice(0).reverse().join('')),
+        flags: { quiz: true }
+    };
 }
 
-function analysisToPages(bf, analysis, stacker) {
+function analysisToPages(ai, analysis, stacker) {
     let sugg = analysis.suggestions[0];
-    let pages = [];
+    let pages = [toPage(stacker)];
     for (let op of sugg.inputs) {
         if (op === 'hd') {
-            pages.push(toPage(stacker));
+            stacker.apply('sd');
+            pages.push({
+                operation: stacker.piece,
+                flags: { lock: true },
+            });
         }
         stacker.apply(op);
     }
-    let comment = bf.version
+    let comment = ai.version
         + " | rating: " + sugg.rating
         + " (" + analysis.statistics.timeTaken + "s)";
-    pages.push({ ...toPage(stacker), comment });
+    pages.push({ comment });
     return pages;
 }
 
@@ -40,7 +38,7 @@ function fromPage(page) {
     lines.pop();
     stacker.matrix = lines.reverse();
     let quiz = page.comment && parseQuiz(page.comment);
-    if (quiz !== null) {
+    if (quiz) {
         stacker.hold = quiz.hold;
         stacker.queue = quiz.current + quiz.queue;
     }
@@ -63,10 +61,21 @@ function parseQuiz(comment) {
     return { hold, current, queue };
 }
 
+function quizString({ piece, queue, hold }) {
+    let current;
+    if (piece) {
+        current = piece.type;
+    } else {
+        current = queue.substring(0, 1);
+        queue = queue.substring(1);
+    }
+    return "#Q=[" + hold + "](" + current + ")" + queue;
+}
+
 function filterValidMinos(str) {
     let output = "";
     for (let c of str) {
-        if (validMinos.includes(c)) {
+        if ("LOJISZT".includes(c)) {
             output += c;
         }
     }
