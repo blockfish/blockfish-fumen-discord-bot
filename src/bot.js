@@ -3,6 +3,7 @@ const discord = require('discord.js');
 const fumen = require('./fumen.js');
 
 const FISH = "\u{1f41f}";
+const FUMEN_SITE = "http://fumen.zui.jp/";
 
 const AI_CONFIG = {
     nodeLimit: 100000,
@@ -45,7 +46,8 @@ class Bot {
             let stacker = fumen.fromPage(pages[0]);
             this.ai.analyze(stacker, AI_CONFIG, analysis => {
                 let solution = fumen.analysisToPages(this.ai, analysis, stacker);
-                callback(`http://fumen.zui.jp/?${fumen.encode(solution)}`);
+                let url = `${FUMEN_SITE}?${fumen.encode(solution)}`;
+                shortenIfTooLong(url, callback);
             });
         } catch (e) {
             console.error(e);
@@ -67,6 +69,14 @@ function parseCommand(msg) {
         return null;
     }
     return { type: 'fumen', data };
+}
+
+function shortenIfTooLong(url, callback) {
+    if (url.length >= 1500) {
+        require('turl').shorten(url).then(callback);
+    } else {
+        return callback(url);
+    }
 }
 
 module.exports = Bot;
