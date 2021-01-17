@@ -47,40 +47,26 @@ class Stacker {
         switch (op) {
         case 'left':
         case 'right':
-            {
-                // horizontal movement
-                let dx = op == 'left' ? -1 : +1;
-                let dy = 0;
-                let spin = 'no';
-                return this._transform([ { dx, dy, spin }]);
-            }
+            // horizontal movement
+            return this._transform([{
+                dx: op == 'left' ? - 1 : 1,
+                dy: 0,
+                r: this.piece.rotation,
+            }]);
 
         case 'ccw':
         case 'cw':
-            {
-                // rotation
-                let { type, rotation } = this.piece;
-                let spin = op;
-                let index = ROTATE_INDEX[ROTATE[rotation][spin]];
-                let kicks = ruleset.shapes[type].kicks[spin][index];
-                return this._transform(kicks.map(([dx, dy]) => ({ dx, dy, spin })));
-            }
+            // rotation
+            // https://harddrop.com/wiki/SRS#How_Guideline_SRS_Really_Works
+            return this._transform(kicks(this.piece, op));
 
         case 'sd':
         case 'hd':
-            {
-                // sonic drop
-                let dy = 0;
-                while (!this._pieceIntersects()) {
-                    this.piece.y -= 1;
-                    dy += 1;
-                }
-                this.piece.y += 1;
-                if (op === 'hd') {
-                    this._lock();
-                }
-                return dy;
+            this._sonicDrop();
+            if (op === 'hd') {
+                this._lock();
             }
+            return true;
 
         default: return null;
         }
@@ -89,11 +75,11 @@ class Stacker {
     _transform(tfs) {
         let { piece: { x, y, rotation } } = this;
         let attempt = 0;
-        for (let { dx, dy, spin } of tfs) {
+        for (let { dx, dy, r } of tfs) {
             attempt++;
             this.piece.x = x + dx;
             this.piece.y = y + dy;
-            this.piece.rotation = ROTATE[rotation][spin];
+            this.piece.rotation = r;
             if (!this._pieceIntersects()) {
                 return attempt;
             }
@@ -105,16 +91,23 @@ class Stacker {
         return null;
     }
 
+    _sonicDrop() {
+        while (!this._pieceIntersects()) {
+            this.piece.y -= 1;
+        }
+        this.piece.y += 1;
+    }
+
     _pieceIntersects() {
         let { x, y } = this.piece;
-        return minoOffsets(this.piece).some(([dx, dy]) => {
+        return minos(this.piece).some(([dx, dy]) => {
             return this._getMatrix(x + dx, y + dy) != '_';
         });
     }
 
     _lock() {
         let { type, x, y } = this.piece;
-        for (let [dx, dy] of minoOffsets(this.piece)) {
+        for (let [dx, dy] of minos(this.piece)) {
             this._setMatrix(x + dx, y + dy, type);
         }
         this.sift();
@@ -175,38 +168,32 @@ const ROTATE = {
     },
 };
 
-const ROTATE_INDEX = {
-    'spawn': 0,
-    'right': 1,
-    'reverse': 2,
-    'left': 3,
-};
+function minos({ type, rotation }) {
+    let rotate;
+    switch (rotation) {
+    case 'spawn':   rotate = xy => xy; break;
+    case 'right':   rotate = ([x, y]) => ([y, -x]); break;
+    case 'reverse': rotate = ([x, y]) => ([-x, -y]); break;
+    case 'left':    rotate = ([x, y]) => ([-y, x]); break;
+    }
+    return ruleset.shapes[type].coords.map(rotate);
+}
 
-// TODO: use a generator?
-function minoOffsets({ type, rotation }) {
-    let { coords, width: w } = ruleset.shapes[type];
-    return coords.map(([x, y]) => {
-        let dx, dy;
-        switch (rotation) {
-        case 'spawn':
-            dx = x;
-            dy = y;
-            break;
-        case 'right':
-            dx = y;
-            dy = w - x - 1;
-            break;
-        case 'reverse':
-            dx = w - x - 1;
-            dy = w - y - 1;
-            break;
-        case 'left':
-            dx = w - y - 1;
-            dy = x;
-            break;
-        }
-        return [dx, dy];
-    });
+function kicks({ type, rotation }, spin) {
+    let r0 = rotation;
+    let r1 = ROTATE[r0][spin];
+    let offsets = ruleset.offsets[ruleset.shapes[type].offsets];
+    let tfs = [];
+    for (let i = 0; i < offsets.spawn.length; i++) {
+        let [x0, y0] = offsets[r0][i];
+        let [x1, y1] = offsets[r1][i];
+        tfs.push({
+            dx: x0 - x1,
+            dy: y0 - y1,
+            r: r1,
+        });
+    }
+    return tfs;
 }
 
 function makeEmptyRow() {
