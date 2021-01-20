@@ -25,14 +25,22 @@ class Bot {
         console.log(this.client.user);
     }
 
+    _onDiscordError(err) {
+        console.error(err);
+    }
+
     _onMessage(msg) {
         let command = msg.content && parseCommand(msg.content);
         if (!command) {
             return;
         }
+
         switch (command.type) {
         case 'fumen':
-            this._fumen(command.data, replyContents => msg.reply(replyContents));
+            this._fumen(command.data, replyContents => {
+                msg.reply(replyContents)
+                    .catch(this._onDiscordError.bind(this))
+            });
             break;
 
         default:
