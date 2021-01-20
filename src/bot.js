@@ -37,7 +37,7 @@ class Bot {
 
         switch (command.type) {
         case 'fumen':
-            this._fumen(command.data, replyContents => {
+            this._fumen(command, replyContents => {
                 msg.reply(replyContents)
                     .catch(this._onDiscordError.bind(this))
             });
@@ -48,10 +48,15 @@ class Bot {
         }
     }
 
-    _fumen(data, callback) {
+    _fumen({ pages }, callback) {
         try {
-            let pages = fumen.decode(data);
-            let stacker = fumen.fromPage(pages[0]);
+            let stacker = null;
+            for (let page of pages) {
+                stacker = fumen.fromPage(page);
+                if (stacker.queue !== '' || stacker.hold !== '') {
+                    break;
+                }
+            }
             this.ai.analyze(stacker, AI_CONFIG, analysis => {
                 if (analysis.suggestions.length > 0) {
                     let solution = fumen.analysisToPages(this.ai, analysis, stacker);
@@ -66,19 +71,13 @@ class Bot {
 }
 
 function parseCommand(msg) {
-    let payload;
-    if (msg.startsWith(':fish ')) {
-        payload = msg.substring(6);
-    } else if (msg.startsWith(FISH)) {
-        payload = msg.substring(FISH.length);
-    } else {
-        return null;
+    if (msg.startsWith(FISH)) {
+        try {
+            let pages = fumen.decode(msg.substring(FISH.length).trim());
+            return { type: 'fumen', pages };
+        } finally {}
     }
-    let data = payload.trim();
-    if (data.length === 0) {
-        return null;
-    }
-    return { type: 'fumen', data };
+    return null;
 }
 
 function shortenIfTooLong(url, callback) {
