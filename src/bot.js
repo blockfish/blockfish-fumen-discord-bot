@@ -75,7 +75,9 @@ function parseCommand(msg) {
         try {
             let pages = fumen.decode(msg.substring(FISH.length).trim());
             return { type: 'fumen', pages };
-        } finally {}
+        } catch (e) {
+            return null;
+        }
     }
     return null;
 }
