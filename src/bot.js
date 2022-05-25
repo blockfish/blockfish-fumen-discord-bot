@@ -3,7 +3,7 @@ const discord = require('discord.js');
 const fumen = require('./fumen.js');
 
 const FISH = "\u{1f41f}";
-const FUMEN_SITE = "http://fumen.zui.jp/";
+const FUMEN_SITE = "http://harddrop.com/fumen/";
 const MAX_URL_LENGTH = 400;
 const AI_CONFIG = {
     nodeLimit: 300000,
