@@ -4,12 +4,12 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "cd blockfish/blockfish-js; npm run build"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "blockfish": "file:../blockfish/blockfish-js",
+    "blockfish": "file:blockfish/blockfish-js",
     "discord.js": "^12.5.1",
     "tetris-fumen": "^1.1.1",
     "turl": "^1.1.2"

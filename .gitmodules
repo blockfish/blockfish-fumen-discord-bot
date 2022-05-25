@@ -1,0 +1,3 @@
+[submodule "blockfish"]
+	path = blockfish
+	url = git@github.com:blockfish/blockfish.git
