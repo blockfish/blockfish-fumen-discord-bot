@@ -1,0 +1,13 @@
+[Unit]
+Description=blockfish fumen discord bot
+Requires=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/blockfish-fumen-bot.env
+ExecStart=/usr/bin/node /usr/lib/node_modules/blockfish-fumen-bot
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
