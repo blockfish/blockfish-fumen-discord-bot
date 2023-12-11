@@ -46,18 +46,25 @@ function fromPage(page) {
 }
 
 function parseQuiz(comment) {
-    if (!comment.startsWith("#Q=[")) {
+    if (!comment.startsWith("#Q=")) {
         return null;
     }
-    let pos = 4;
-    let i = comment.indexOf("](", pos);
-    if (i === -1) return null;
-    let hold = filterValidMinos(comment.substring(pos, i));
-    pos = i + 2;
-    i = comment.indexOf(")", pos);
-    if (i === -1) return null;
-    let current = filterValidMinos(comment.substring(pos, i));
-    let queue = filterValidMinos(comment.substring(i + 1));
+
+    let pos = 3;
+    let hold = "";
+    if (comment[pos] === "[") {
+        let end = comment.indexOf("]", pos + 1);
+        if (end === -1) {
+            return null;
+        }
+        hold = filterValidMinos(comment.substring(pos + 1, end));
+        pos = end + 1;
+    }
+
+    let rest = filterValidMinos(comment.substring(pos));
+    let current = rest.substring(0, 1);
+    let queue = rest.substring(1);
+
     return { hold, current, queue };
 }
 
