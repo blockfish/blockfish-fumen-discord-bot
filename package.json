@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "blockfish": "file:blockfish/blockfish-js",
-    "discord.js": "^12.5.1",
+    "discord.js": "^12.5.3",
     "tetris-fumen": "^1.1.1",
     "turl": "^1.1.2"
   }
